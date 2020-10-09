@@ -107,7 +107,13 @@ contract.only('EvDashboardRegistry', (accounts) => {
     })
 
     it('should resolve device from its unique identifier', async () => {
-
+        const sig1 = await sign.addUser(users[0])
+        await registry.addUser(users[0].address, sig1.v, sig1.r, sig1.s, { from: operator })
+        const sig2 = await sign.addDevice(devices[0].address, devices[0].identifier, users[0])
+        await registry.addDevice(devices[0].address, devices[0].identifier, users[0].address, sig2.v, sig2.r, sig2.s, { from: operator })
+        const device = await registry.getDeviceFromIdentifier(devices[0].identifier)
+        assert.equal(device.addr, devices[0].address)
+        assert.equal(device.user, users[0].address)
     })
 
 })

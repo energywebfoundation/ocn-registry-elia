@@ -20,8 +20,9 @@ contract EvDashboardRegistry {
     /**
      * Device Storage
      */
-    mapping(address => Device) public devices; 
-    address[] public deviceAddressList;
+    mapping(address => Device) public devices;
+    mapping(string => address) private identifiers;
+    address[] private deviceAddressList;
     
 
     constructor(address ocnRegistry) public {
@@ -72,6 +73,7 @@ contract EvDashboardRegistry {
         require(users[signer] == true, "User not added yet");
         require(devices[device].user == address(0), "Device already added");
         devices[device] = Device(user, identifier);
+        identifiers[identifier] = device;
         deviceAddressList.push(device);
     }
 
@@ -84,12 +86,11 @@ contract EvDashboardRegistry {
     }
 
     function getDeviceFromIdentifier(string memory identifier) public view returns (
-        address device,
+        address addr,
         address user
     ) {
-        // TODO
-        device = address(0);
-        user = address(0);
+        addr = identifiers[identifier];
+        user = devices[addr].user;
     }
 
 }
