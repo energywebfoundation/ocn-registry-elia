@@ -57,6 +57,16 @@ async function revokeAgreementRaw(provider, wallet) {
   return sign(txMsg, wallet)
 }
 
+async function addUser(wallet) {
+  const txMsg = utils.soliditySha3(wallet.address)
+  return sign(txMsg, wallet)
+}
+
+async function addDevice(device, id, wallet) {
+  const txMsg = utils.soliditySha3(device, id, wallet.address)
+  return sign(txMsg, wallet)
+}
+
 module.exports = {
   setNodeRaw,
   deleteNodeRaw,
@@ -66,5 +76,7 @@ module.exports = {
   setServiceRaw,
   deleteServiceRaw,
   createAgreementRaw,
-  revokeAgreementRaw
+  revokeAgreementRaw,
+  addUser,
+  addDevice
 }

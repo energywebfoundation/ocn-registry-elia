@@ -1,4 +1,4 @@
-pragma ^0.5.16;
+pragma solidity ^0.5.15;
 
 import "./Registry.sol";
 
@@ -7,30 +7,30 @@ contract EvDashboardRegistry {
     string private constant prefix = "\u0019Ethereum Signed Message:\n32";
 
     struct Device {
-        address owner;
+        address user;
         string identifier;
     }
 
     /**
      * User Storage
      */
-    mapping(address => bool) public users;
-    address[] public userList;
+    mapping(address => bool) private users;
+    address[] private userAddressList;
 
     /**
      * Device Storage
      */
     mapping(address => Device) public devices; 
-    address[] public devices;
+    address[] public deviceAddressList;
     
 
-    constructor(address ocnRegistry) {
-        this.registry = Registry(ocnRegistry);
+    constructor(address ocnRegistry) public {
+        registry = Registry(ocnRegistry);
     }
 
     function validateRegistered(address user) private {
-        (address operator, ) = registry.getOperatorByAddress(provider);
-        require(operator != address(0), "Trying to add user without listing in OCN Registry.");
+        (address operator, ) = registry.getOperatorByAddress(user);
+        require(operator != address(0), "User not listed in OCN Registry");
     }
 
     /**
@@ -49,7 +49,7 @@ contract EvDashboardRegistry {
         validateRegistered(signer);
         require(users[signer] == false, "User already added");
         users[signer] = true;
-        userList.push(signer);
+        userAddressList.push(signer);
     }
 
     /**
@@ -65,19 +65,31 @@ contract EvDashboardRegistry {
         bytes32 r, 
         bytes32 s
     ) public {
-        bytes32 paramHash = keccak256(abi.encodePacked(device, identifier, owner));
+        bytes32 paramHash = keccak256(abi.encodePacked(device, identifier, user));
         address signer = ecrecover(keccak256(abi.encodePacked(prefix, paramHash)), v, r, s);
-        require(owner == signer, "Expected and actual user differ");
+        require(user == signer, "Expected and actual user differ");
         validateRegistered(signer);
         require(users[signer] == true, "User not added yet");
-        require(devices[device] == false, "Device already added");
-        devices[device] = true;
+        require(devices[device].user == address(0), "Device already added");
         devices[device] = Device(user, identifier);
-        devicesList.push(device);
+        deviceAddressList.push(device);
     }
 
-    function resolveDeviceFromIdentifier(string memory identifier) public returns (Device) {
+    function getAllUserAddresses() public view returns (address[] memory) {
+        return userAddressList;
+    }
+
+    function getAllDeviceAddresses() public view returns (address[] memory) {
+        return deviceAddressList;
+    }
+
+    function getDeviceFromIdentifier(string memory identifier) public view returns (
+        address device,
+        address user
+    ) {
         // TODO
+        device = address(0);
+        user = address(0);
     }
 
 }
