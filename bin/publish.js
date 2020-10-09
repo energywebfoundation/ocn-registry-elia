@@ -22,7 +22,7 @@ const network = process.argv[2] || 'development'
 const config = require('../truffle').networks[network]
 const provider = config.provider ? config.provider() : new Web3.providers.HttpProvider(`http://${config.host}:${config.port}`)
 
-const contractNames = ['Registry', 'Permissions']
+const contractNames = ['Registry', 'Permissions', 'EvDashboardRegistry']
 
 const isDevelopment = network === 'development'
 const isProduction = network === 'production'
@@ -32,8 +32,11 @@ async function publish() {
     return new Promise((resolve, reject) => {
       const instance = contract(require('../build/contracts/' + contractName))
       instance.setProvider(provider)
-      if (network === "volta" && contractName === "Registry") {
-        instance.at(process.env.REGISTRY_ADDRESS).then((res) => {
+      if (network === "volta" && contractName !== contractNames[2]) {
+        const addr = contractName === contractNames[0]
+          ? process.env.REGISTRY_ADDRESS
+          : process.env.PERMISSIONS_ADDRESS
+        instance.at(addr).then((res) => {
           resolve({
             name: instance.contractName,
             abi: instance.abi,

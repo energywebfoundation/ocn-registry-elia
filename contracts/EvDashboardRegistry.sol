@@ -37,6 +37,7 @@ contract EvDashboardRegistry {
     /**
      * Adds business user, allowing participation in FCR market. 
      * Can be relayed by any entity: the business user only needs to sign their wallet address.
+     * NOTE: might need to be modified (DID subject and OCN Registry party could be same entities with different keys)
      */
     function addUser(
         address user,
